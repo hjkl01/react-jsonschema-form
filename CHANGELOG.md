@@ -16,6 +16,106 @@ should change the heading of the (upcoming) version to include a major version b
 
 -->
 
+# 5.20.0
+
+## @rjsf/core 
+
+- Support allowing raising errors from within a custom Widget [#2718](https://github.com/rjsf-team/react-jsonschema-form/issues/2718)
+- Updated `ArrayField`, `BooleanField` and `StringField` to call `optionsList()` with the additional `UiSchema` parameter, fixing [#4215](https://github.com/rjsf-team/react-jsonschema-form/issues/4215) and  [#4260](https://github.com/rjsf-team/react-jsonschema-form/issues/4260)
+
+## @rjsf/utils
+
+- Updated the `WidgetProps` type to add `es?: ErrorSchema<T>, id?: string` to the params of the `onChange` handler function
+- Updated `UIOptionsBaseType` to add the new `enumNames` prop to support an alternate way to provide labels for `enum`s in a schema, fixing [#4215](https://github.com/rjsf-team/react-jsonschema-form/issues/4215)
+- Updated `optionsList()` to take an optional `uiSchema` that is used to extract alternate labels for `enum`s or `oneOf`/`anyOf` in a schema, fixing [#4215](https://github.com/rjsf-team/react-jsonschema-form/issues/4215) and  [#4260](https://github.com/rjsf-team/react-jsonschema-form/issues/4260)
+  - NOTE: The generics for `optionsList()` were expanded from `<S extends StrictRJSFSchema = RJSFSchema>` to `<S extends StrictRJSFSchema = RJSFSchema, T = any, F extends FormContextType = any>` to support the `UiSchema`.
+
+## Dev / docs / playground
+
+-  Update the `custom-widget-fields.md` to add documentation for how to raise errors from a custom widget or field
+
+# 5.19.4
+
+## @rjsf/core 
+
+- Fix XSS when rendering schema validation errors [#4254](https://github.com/rjsf-team/react-jsonschema-form/issues/2718)
+  - NOTE: This will have potential consequences if you are using the [translateString](https://rjsf-team.github.io/react-jsonschema-form/docs/api-reference/form-props/#translatestring) feature and are trying to render HTML. Switching to [Markdown](https://www.markdownguide.org/) will solve your problems.
+
+## @rjsf/utils
+
+- Updated the `ValidatorType` interface to add an optional `reset?: () => void` prop that can be implemented to reset a validator back to initial constructed state
+  - Updated the `ParserValidator` to provide a `reset()` function that clears the schema map
+- Also updated the default translatable string to use `Markdown` rather than HTML tags since we now render them with `Markdown`
+
+## @rjsf/validator-ajv8
+
+- Updated the `AJV8Validator` to implement the `reset()` function to remove cached schemas in the `ajv` instance
+
+## Dev / docs / playground
+
+- Updated the `Validator` dropdown to add `AJV8 (discriminator)` which sets the AJV validator [discriminator](https://ajv.js.org/json-schema.html#discriminator) option to `true` to support testing schemas with that option in them 
+
+# 5.19.3
+
+## @rjsf/antd
+
+- SelectWidget now displays an empty option when appropriate, fixing [#4197](https://github.com/rjsf-team/react-jsonschema-form/issues/4197)
+
+## @rjsf/chakra-ui
+
+- SelectWidget now displays an empty option when appropriate, fixing [#4197](https://github.com/rjsf-team/react-jsonschema-form/issues/4197)
+
+## @rjsf/fluentui-rc
+
+- SelectWidget now displays an empty option when appropriate, fixing [#4197](https://github.com/rjsf-team/react-jsonschema-form/issues/4197)
+
+## @rjsf/material-ui
+
+- SelectWidget now displays an empty option when appropriate, fixing [#4197](https://github.com/rjsf-team/react-jsonschema-form/issues/4197)
+
+## @rjsf/mui
+
+- SelectWidget now displays an empty option when appropriate, fixing [#4197](https://github.com/rjsf-team/react-jsonschema-form/issues/4197)
+
+## @rjsf/semantic-ui
+
+- SelectWidget now displays an empty option when appropriate, fixing [#4197](https://github.com/rjsf-team/react-jsonschema-form/issues/4197)
+
+# 5.19.2
+
+## @rjsf/core
+
+- Removed `.only` on tests that was accidentally added in `5.19.0`
+
+# 5.19.1
+
+## Dev / docs / playground
+
+- Bumped the peer dependencies to `5.19.x` due to use of new API in `5.19.0`
+
+# 5.19.0
+
+## @rjsf/antd
+
+- Updated `AltDateWidget` to use the new `dateRangeOptions()` function in `utils` to support relative Years and reversing the order of the Year choices
+
+## @rjsf/chakra-ui
+
+- Updated `AltDateWidget` to use the new `dateRangeOptions()` function in `utils` to support relative Years and reversing the order of the Year choices
+
+## @rjsf/core
+
+- Fixed case where `readOnly` from a JSON Schema was not applied in SchemaField ([#4236](https://github.com/rjsf-team/react-jsonschema-form/issues/4236))
+- Updated `AltDateWidget` to use the new `dateRangeOptions()` function in `utils` to support relative Years and reversing the order of the Year choices
+
+## @rjsf/utils
+
+- Added a new `dateRangeOptions()` function to implement relative Years in (via negative ranges) and reversing the order of the Year choices
+
+## Dev / docs / playground
+
+- Added documentation for the new `dateRangeOptions()` function as well as showing examples of using relative Years and reversed Year ordering
+
 # 5.18.6
 
 ## @rjsf/antd
@@ -25,7 +125,6 @@ should change the heading of the (upcoming) version to include a major version b
 ## @rjsf/core
 
 - Fixed `omitExtraData` not working in `onSubmit` and `validateForm`; fixing [#4187](https://github.com/rjsf-team/react-jsonschema-form/issues/4187), [#4165](https://github.com/rjsf-team/react-jsonschema-form/issues/4165) and [#4109](https://github.com/rjsf-team/react-jsonschema-form/issues/4109)
-- Fixed case where `readOnly` from a JSON Schema was not applied in SchemaField ([#4236](https://github.com/rjsf-team/react-jsonschema-form/issues/4236))
 
 ## @rjsf/utils
 
@@ -58,6 +157,7 @@ should change the heading of the (upcoming) version to include a major version b
 - Fix case where NumberField would not properly reset the field when using programmatic form reset (#4202)[https://github.com/rjsf-team/react-jsonschema-form/issues/4202]
 - Updated widgets to handle undefined `target` in `onFocus` and `onBlur` handlers
 - Fix field disable or readonly property can't cover globalOptions corresponding property (#4212)[https://github.com/rjsf-team/react-jsonschema-form/pull/4212]
+- Added support for `default` values in `additionalProperties` in [#4199](https://github.com/rjsf-team/react-jsonschema-form/issues/4199), fixing [#3195](https://github.com/rjsf-team/react-jsonschema-form/issues/3915)
 
 ## @rjsf/fluent-ui
 

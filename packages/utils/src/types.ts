@@ -750,7 +750,7 @@ export interface WidgetProps<T = any, S extends StrictRJSFSchema = RJSFSchema, F
   /** The input blur event handler; call it with the widget id and value */
   onBlur: (id: string, value: any) => void;
   /** The value change event handler; call it with the new value every time it changes */
-  onChange: (value: any) => void;
+  onChange: (value: any, es?: ErrorSchema<T>, id?: string) => void;
   /** The input focus event handler; call it with the widget id and value */
   onFocus: (id: string, value: any) => void;
   /** The computed label for this widget, as a string */
@@ -890,6 +890,8 @@ type UIOptionsBaseType<T = any, S extends StrictRJSFSchema = RJSFSchema, F exten
      * to look up an implementation from the `widgets` list or an actual one-off widget implementation itself
      */
     widget?: Widget<T, S, F> | string;
+    /** Allows a user to provide a list of labels for enum values in the schema */
+    enumNames?: string[];
   };
 
 /** The type that represents the Options potentially provided by `ui:options` */
@@ -1004,6 +1006,10 @@ export interface ValidatorType<T = any, S extends StrictRJSFSchema = RJSFSchema,
    * @param formData - The form data to validate
    */
   rawValidation<Result = any>(schema: S, formData?: T): { errors?: Result[]; validationError?: Error };
+  /** An optional function that can be used to reset validator implementation. Useful for clear schemas in the AJV
+   * instance for tests.
+   */
+  reset?: () => void;
 }
 
 /** The `SchemaUtilsType` interface provides a wrapper around the publicly exported APIs in the `@rjsf/utils/schema`

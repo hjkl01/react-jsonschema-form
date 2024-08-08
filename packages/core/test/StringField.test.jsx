@@ -3,8 +3,40 @@ import { Simulate } from 'react-dom/test-utils';
 import { fireEvent, act } from '@testing-library/react';
 import sinon from 'sinon';
 import { parseDateString, toDateString, TranslatableString, utcToLocal } from '@rjsf/utils';
+import StringField from '../src/components/fields/StringField';
+import TextWidget from '../src/components/widgets/TextWidget';
 
 import { createFormComponent, createSandbox, getSelectedOptionValue, submitForm } from './test_utils';
+
+const StringFieldTest = (props) => {
+  const onChangeTest = (newFormData, errorSchema, id) => {
+    const value = newFormData;
+    let raiseError = errorSchema;
+    if (value !== 'test') {
+      raiseError = {
+        ...raiseError,
+        __errors: ['Value must be "test"'],
+      };
+    }
+    props.onChange(newFormData, raiseError, id);
+  };
+  return <StringField {...props} onChange={onChangeTest} />;
+};
+
+export const TextWidgetTest = (props) => {
+  const onChangeTest = (newFormData, errorSchema, id) => {
+    const value = newFormData;
+    let raiseError = errorSchema;
+    if (value !== 'test') {
+      raiseError = {
+        ...raiseError,
+        __errors: ['Value must be "test"'],
+      };
+    }
+    props.onChange(newFormData, raiseError, id);
+  };
+  return <TextWidget {...props} onChange={onChangeTest} />;
+};
 
 describe('StringField', () => {
   let sandbox;
@@ -265,6 +297,78 @@ describe('StringField', () => {
       });
 
       expect(node.querySelector('input').getAttribute('autocomplete')).eql('family-name');
+    });
+
+    it('raise an error and check if the error is displayed', () => {
+      const { node } = createFormComponent({
+        schema: { type: 'string' },
+        fields: {
+          StringField: StringFieldTest,
+        },
+      });
+
+      const inputs = node.querySelectorAll('.field-string input[type=text]');
+      act(() => {
+        fireEvent.change(inputs[0], { target: { value: 'hello' } });
+      });
+
+      const errorMessages = node.querySelectorAll('#root__error');
+      expect(errorMessages).to.have.length(1);
+      const errorMessageContent = node.querySelector('#root__error .text-danger').textContent;
+      expect(errorMessageContent).to.contain('Value must be "test"');
+    });
+
+    it('should not raise an error if value is correct', () => {
+      const { node } = createFormComponent({
+        schema: { type: 'string' },
+        fields: {
+          StringField: StringFieldTest,
+        },
+      });
+
+      const inputs = node.querySelectorAll('.field-string input[type=text]');
+      act(() => {
+        fireEvent.change(inputs[0], { target: { value: 'test' } });
+      });
+
+      const errorMessages = node.querySelectorAll('#root__error');
+      expect(errorMessages).to.have.length(0);
+    });
+
+    it('raise an error and check if the error is displayed using custom text widget', () => {
+      const { node } = createFormComponent({
+        schema: { type: 'string' },
+        widgets: {
+          TextWidget: TextWidgetTest,
+        },
+      });
+
+      const inputs = node.querySelectorAll('.field-string input[type=text]');
+      act(() => {
+        fireEvent.change(inputs[0], { target: { value: 'hello' } });
+      });
+
+      const errorMessages = node.querySelectorAll('#root__error');
+      expect(errorMessages).to.have.length(1);
+      const errorMessageContent = node.querySelector('#root__error .text-danger').textContent;
+      expect(errorMessageContent).to.contain('Value must be "test"');
+    });
+
+    it('should not raise an error if value is correct using custom text widget', () => {
+      const { node } = createFormComponent({
+        schema: { type: 'string' },
+        widgets: {
+          TextWidget: TextWidgetTest,
+        },
+      });
+
+      const inputs = node.querySelectorAll('.field-string input[type=text]');
+      act(() => {
+        fireEvent.change(inputs[0], { target: { value: 'test' } });
+      });
+
+      const errorMessages = node.querySelectorAll('#root__error');
+      expect(errorMessages).to.have.length(0);
     });
   });
 
@@ -1333,6 +1437,67 @@ describe('StringField', () => {
         const ids = [].map.call(node.querySelectorAll('select'), (node) => node.id);
 
         expect(ids).eql(['root_month', 'root_day', 'root_year', 'root_hour', 'root_minute', 'root_second']);
+      });
+    });
+
+    describe('AltDateTimeWidget with yearsRange option', () => {
+      it('should render a date field with years range from 1980-1985', () => {
+        const uiSchema = { 'ui:widget': 'alt-datetime', 'ui:options': { yearsRange: [1980, 1985] } };
+        const { node } = createFormComponent({
+          schema: {
+            type: 'string',
+            format: 'date',
+          },
+          uiSchema,
+        });
+
+        const yearOptions = node.querySelectorAll('select#root_year option');
+        const yearOptionsLabels = [].map.call(yearOptions, (o) => o.text);
+        expect(yearOptionsLabels).eql(['year', '1980', '1981', '1982', '1983', '1984', '1985']);
+      });
+      it('should render a date field with years range from 1985-1980', () => {
+        const uiSchema = { 'ui:widget': 'alt-datetime', 'ui:options': { yearsRange: [1985, 1980] } };
+        const { node } = createFormComponent({
+          schema: {
+            type: 'string',
+            format: 'date',
+          },
+          uiSchema,
+        });
+
+        const yearOptions = node.querySelectorAll('select#root_year option');
+        const yearOptionsLabels = [].map.call(yearOptions, (o) => o.text);
+        expect(yearOptionsLabels).eql(['year', '1985', '1984', '1983', '1982', '1981', '1980']);
+      });
+      it('should render a date field with years range from this year to 3 years ago', () => {
+        const uiSchema = { 'ui:widget': 'alt-datetime', 'ui:options': { yearsRange: [0, -3] } };
+        const { node } = createFormComponent({
+          schema: {
+            type: 'string',
+            format: 'date',
+          },
+          uiSchema,
+        });
+
+        const thisYear = new Date().getFullYear();
+        const yearOptions = node.querySelectorAll('select#root_year option');
+        const yearOptionsLabels = [].map.call(yearOptions, (o) => o.text);
+        expect(yearOptionsLabels).eql(['year', `${thisYear}`, `${thisYear - 1}`, `${thisYear - 2}`, `${thisYear - 3}`]);
+      });
+      it('should render a date field with years range from 3 years ago to this year ', () => {
+        const uiSchema = { 'ui:widget': 'alt-datetime', 'ui:options': { yearsRange: [-3, 0] } };
+        const { node } = createFormComponent({
+          schema: {
+            type: 'string',
+            format: 'date',
+          },
+          uiSchema,
+        });
+
+        const thisYear = new Date().getFullYear();
+        const yearOptions = node.querySelectorAll('select#root_year option');
+        const yearOptionsLabels = [].map.call(yearOptions, (o) => o.text);
+        expect(yearOptionsLabels).eql(['year', `${thisYear - 3}`, `${thisYear - 2}`, `${thisYear - 1}`, `${thisYear}`]);
       });
     });
   });
