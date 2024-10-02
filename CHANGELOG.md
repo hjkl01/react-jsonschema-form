@@ -16,6 +16,56 @@ should change the heading of the (upcoming) version to include a major version b
 
 -->
 
+# 5.21.2
+
+## @rjsf/core
+
+- Updated `SchemaField` to pass `required` flag to `_AnyOfField`/`_OneOfField`
+- Updated `Form` to deal with null objects in `filterErrorsBasedOnSchema()`, fixing [#4306](https://github.com/rjsf-team/react-jsonschema-form/issues/4306)
+
+## @rjsf/utils
+
+- Updated `ErrorSchemaBuilder` to support adding, updating, and removing paths that are numbers, fixing [#4297](https://github.com/rjsf-team/react-jsonschema-form/issues/4297)
+- Updated `retrieveSchema` to not merge `contains` properties in `allOf` schema lists, fixing [#2923](https://github.com/rjsf-team/react-jsonschema-form/issues/2923#issuecomment-1946034240)
+
+## Dev / docs / playground
+
+- Updated the `custom-widgets-fields.md` to add examples of wrapping a widget/field
+
+# 5.21.1
+
+## @rjsf/utils
+
+- Revert of updating `deepEquals()` from [#4292]
+
+## @validator-ajv8
+
+- Revert of using `deepEquals()` instead of `lodash.isEqual()` from [#4292]
+
+# 5.21.0
+
+## @rjsf/core
+
+- Updated `Form` to fix `focusOnError()` to support the ids that include dots, fixing [#4279](https://github.com/rjsf-team/react-jsonschema-form/issues/4279) 
+
+## @rjsf/mui
+
+- Updated the peer dependencies for `@mui/material` and `@mui/icon-material`, fixing [4283](https://github.com/rjsf-team/react-jsonschema-form/issues/4283)
+
+## @rjsf/utils
+
+- Fixes an issue with dependencies computeDefaults to ensure we can get the dependencies defaults [#4271](https://github.com/rjsf-team/react-jsonschema-form/issues/4271)
+- Updated `deepEquals()` to use `fast-equals.createCustomEqual()` instead of `lodash.isEqualWith()`, fixing [#4291](https://github.com/rjsf-team/react-jsonschema-form/issues/4291)
+  - Switched uses of `lodash.isEqual()` to `deepEquals()` in many of the utility functions as well
+
+## @validator-ajv8
+
+- Use `@rjsf/utils` `deepEquals()` instead of `lodash.isEqual()` to improve performance, fixing [#4291](https://github.com/rjsf-team/react-jsonschema-form/issues/4291)
+
+## Dev / docs / playground
+
+- Updated the playground to use `@mui/*` version 6, changing the name of the dropdown from `material-ui-5` to `mui`
+
 # 5.20.1
 
 ## Dev / docs / playground

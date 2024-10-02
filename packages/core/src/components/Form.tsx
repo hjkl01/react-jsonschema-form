@@ -37,6 +37,7 @@ import {
 import _forEach from 'lodash/forEach';
 import _get from 'lodash/get';
 import _isEmpty from 'lodash/isEmpty';
+import _isNil from 'lodash/isNil';
 import _pick from 'lodash/pick';
 import _toPath from 'lodash/toPath';
 
@@ -603,18 +604,18 @@ export default class Form<
     if (resolvedSchema?.type !== 'object' && resolvedSchema?.type !== 'array') {
       filteredErrors.__errors = schemaErrors.__errors;
     }
-    // Removing undefined and empty errors.
-    const filterUndefinedErrors = (errors: any): ErrorSchema<T> => {
+    // Removing undefined, null and empty errors.
+    const filterNilOrEmptyErrors = (errors: any): ErrorSchema<T> => {
       _forEach(errors, (errorAtKey, errorKey: keyof typeof errors) => {
-        if (errorAtKey === undefined) {
+        if (_isNil(errorAtKey)) {
           delete errors[errorKey];
         } else if (typeof errorAtKey === 'object' && !Array.isArray(errorAtKey.__errors)) {
-          filterUndefinedErrors(errorAtKey);
+          filterNilOrEmptyErrors(errorAtKey);
         }
       });
       return errors;
     };
-    return filterUndefinedErrors(filteredErrors);
+    return filterNilOrEmptyErrors(filteredErrors);
   }
 
   /** Function to handle changes made to a field in the `Form`. This handler receives an entirely new copy of the
@@ -641,7 +642,6 @@ export default class Form<
     let state: Partial<FormState<T, S, F>> = { formData, schema };
     let newFormData = formData;
 
-    let _retrievedSchema: S | undefined;
     if (omitExtraData === true && liveOmit === true) {
       newFormData = this.omitExtraData(formData);
       state = {
@@ -681,9 +681,6 @@ export default class Form<
         errorSchema: errorSchema,
         errors: toErrorList(errorSchema),
       };
-    }
-    if (_retrievedSchema) {
-      state.retrievedSchema = _retrievedSchema;
     }
     this.setState(state as FormState<T, S, F>, () => onChange && onChange({ ...this.state, ...state }, id));
   };
@@ -837,7 +834,7 @@ export default class Form<
     let field = this.formElement.current.elements[elementId];
     if (!field) {
       // if not an exact match, try finding an input starting with the element id (like radio buttons or checkboxes)
-      field = this.formElement.current.querySelector(`input[id^=${elementId}`);
+      field = this.formElement.current.querySelector(`input[id^="${elementId}"`);
     }
     if (field && field.length) {
       // If we got a list with length > 0
